@@ -5,8 +5,10 @@ public class Player : MonoBehaviour
     public Transform arrowTransform;
     public Rigidbody2D rb;
     public float explosionSpeed = 10;
+    public GameObject bombPrefab;
 
     Vector2 _direction = new(-1, 0);
+    Bomb _spawnedBomb;
 
     void Update()
     {
@@ -21,7 +23,16 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(-_direction * explosionSpeed, ForceMode2D.Impulse);
+            if (_spawnedBomb == null)
+            {
+                GameObject bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
+                bomb.GetComponent<Rigidbody2D>().AddForce(_direction * explosionSpeed, ForceMode2D.Impulse);
+                _spawnedBomb = bomb.GetComponent<Bomb>();
+            }
+            else
+            {
+                _spawnedBomb.Explode();
+            }
         }
     }
 }
