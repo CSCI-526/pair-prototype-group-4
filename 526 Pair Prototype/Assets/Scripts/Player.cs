@@ -1,11 +1,19 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     public Transform arrowTransform;
     public Rigidbody2D rb;
-    public float explosionSpeed = 10;
+    public float bombSpeed = 10;
+    public float minPlayerSpeed = 5, maxPlayerSpeed = 10;
+    public int maxBombsInAir = 2;
+    private int _bombsUsedInAir = 0;
+    private bool _isGrounded = false;
+    public LayerMask groundLayer;
+
     public GameObject bombPrefab;
+    public GameObject GameOverScreen;
 
     Vector2 _direction = new(-1, 0);
     Bomb _spawnedBomb;
@@ -25,14 +33,45 @@ public class Player : MonoBehaviour
         {
             if (_spawnedBomb == null)
             {
-                GameObject bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
-                bomb.GetComponent<Rigidbody2D>().AddForce(_direction * explosionSpeed, ForceMode2D.Impulse);
-                _spawnedBomb = bomb.GetComponent<Bomb>();
+                if (_isGrounded || _bombsUsedInAir < maxBombsInAir)
+                {
+                    GameObject bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
+                    bomb.GetComponent<Rigidbody2D>().AddForce(_direction * bombSpeed, ForceMode2D.Impulse);
+                    _spawnedBomb = bomb.GetComponent<Bomb>();
+                    _spawnedBomb.player = this;
+
+                    if (!_isGrounded)
+                    {
+                        _bombsUsedInAir++;
+                    }
+                }
             }
             else
             {
                 _spawnedBomb.Explode();
             }
         }
+    }
+
+    void FixedUpdate()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 1.5f, groundLayer);
+        _isGrounded = hit.collider != null;
+        if (_isGrounded)
+        {
+            _bombsUsedInAir = 0;
+        }
+    }
+
+    public void LaunchPlayer(Vector2 direction, float explosionStrength)
+    {
+        rb.velocity = direction * Mathf.Lerp(minPlayerSpeed, maxPlayerSpeed, explosionStrength);
+    }
+
+    public void Die()
+    {
+        Time.timeScale = 0;
+        GameOverScreen.SetActive(true);
+        Destroy(gameObject);
     }
 }

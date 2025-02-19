@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,13 +21,13 @@ public class Breakable : MonoBehaviour
     public void DestroyBreakable()
     {
         isDestroyed = true;
-        GetComponent<Collider2D>().enabled = false;
 
         foreach (Breakable breakable in GetAdjacentBreakables())
         {
             breakable.DestroyBreakable();
         }
 
+        collider.enabled = false;
         Destroy(gameObject);
     }
 
@@ -36,11 +35,21 @@ public class Breakable : MonoBehaviour
     {
         List<Breakable> adjacentBreakables = new List<Breakable>();
 
+        float leftEdge = transform.position.x - collider.bounds.size.x / 2;
+        float rightEdge = transform.position.x + collider.bounds.extents.x;
+        float topEdge = transform.position.y + collider.bounds.extents.y;
+        float bottomEdge = transform.position.y - collider.bounds.extents.y;
+
         foreach (Breakable breakable in breakables)
         {
-            if (breakable == this) continue;
+            if (breakable == this || breakable.isDestroyed) continue;
 
-            if (Mathf.Abs(breakable.transform.position.x - transform.position.x) <= 0.1f && Mathf.Abs(breakable.transform.position.y - transform.position.y) <= 0.1f)
+            float otherLeftEdge = breakable.transform.position.x - breakable.collider.bounds.extents.x;
+            float otherRightEdge = breakable.transform.position.x + breakable.collider.bounds.extents.x;
+            float otherTopEdge = breakable.transform.position.y + breakable.collider.bounds.extents.y;
+            float otherBottomEdge = breakable.transform.position.y - breakable.collider.bounds.extents.y;
+
+            if (leftEdge <= otherRightEdge && rightEdge >= otherLeftEdge && topEdge >= otherBottomEdge && bottomEdge <= otherTopEdge)
             {
                 adjacentBreakables.Add(breakable);
             }
