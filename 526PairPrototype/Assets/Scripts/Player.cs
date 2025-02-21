@@ -35,11 +35,13 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        _direction.x = (Input.GetKey(KeyCode.RightArrow) ? 1 : 0) + (Input.GetKey(KeyCode.LeftArrow) ? -1 : 0);
-        _direction.y = (Input.GetKey(KeyCode.UpArrow) ? 1 : 0) + (Input.GetKey(KeyCode.DownArrow) ? -1 : 0);
+        Vector2 aimDirection;
+        aimDirection.x = (Input.GetKey(KeyCode.RightArrow) ? 1 : 0) + (Input.GetKey(KeyCode.LeftArrow) ? -1 : 0);
+        aimDirection.y = (Input.GetKey(KeyCode.UpArrow) ? 1 : 0) + (Input.GetKey(KeyCode.DownArrow) ? -1 : 0);
 
-        if (_direction != Vector2.zero)
+        if (aimDirection != Vector2.zero)
         {
+            _direction = aimDirection;
             arrowTransform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(_direction.y, _direction.x) * Mathf.Rad2Deg - 90);
             arrowTransform.position = new Vector3(transform.position.x + _direction.x * 0.1f, transform.position.y + _direction.y * 0.1f, arrowTransform.position.z);
         }
