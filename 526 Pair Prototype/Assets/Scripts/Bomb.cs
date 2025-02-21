@@ -3,6 +3,15 @@ using UnityEngine;
 public class Bomb : MonoBehaviour
 {
     public Player player;
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        Breakable breakable = other.gameObject.GetComponent<Breakable>();
+        if (breakable != null)
+        {
+            breakable.DestroyBreakable();
+            Explode();
+        }
+    }
 
     // on collision with player, explode
     private void OnCollisionEnter2D(Collision2D other)
