@@ -39,6 +39,7 @@ jobs:
               with:
                   targetPlatform: WebGL
                   buildName: Build
+                  projectPath: ./526PairPrototype
 
             # Deploy to GitHub Pages
             - name: Deploy to GitHub Pages
