@@ -14,9 +14,24 @@ public class Player : MonoBehaviour
 
     public GameObject bombPrefab;
     public GameObject GameOverScreen;
+    public GameObject WinScreen;
 
     Vector2 _direction = new(-1, 0);
     Bomb _spawnedBomb;
+
+    public static Player instance;
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        instance = null;
+    }
 
     void Update()
     {
@@ -35,10 +50,18 @@ public class Player : MonoBehaviour
             {
                 if (_isGrounded || _bombsUsedInAir < maxBombsInAir)
                 {
-                    GameObject bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
-                    bomb.GetComponent<Rigidbody2D>().AddForce(_direction * bombSpeed, ForceMode2D.Impulse);
-                    _spawnedBomb = bomb.GetComponent<Bomb>();
-                    _spawnedBomb.player = this;
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, _direction, 1.5f, groundLayer);
+                    if (hit.collider != null)
+                    {
+                        LaunchPlayer(-_direction, 1f);
+                    }
+                    else
+                    {
+                        GameObject bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
+                        bomb.GetComponent<Rigidbody2D>().AddForce(_direction * bombSpeed, ForceMode2D.Impulse);
+                        _spawnedBomb = bomb.GetComponent<Bomb>();
+                        _spawnedBomb.player = this;
+                    }
 
                     if (!_isGrounded)
                     {
@@ -73,5 +96,11 @@ public class Player : MonoBehaviour
         Time.timeScale = 0;
         GameOverScreen.SetActive(true);
         Destroy(gameObject);
+    }
+
+    public void Win()
+    {
+        Time.timeScale = 0;
+        WinScreen.SetActive(true);
     }
 }

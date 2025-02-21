@@ -10,13 +10,4 @@ public class Lava : MonoBehaviour
     {
         transform.position += new Vector3(0, moveSpeed * Time.deltaTime, 0);
     }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Player player = collision.GetComponent<Player>();
-        if (player)
-        {
-            player.Die();
-        }
-    }
 }
